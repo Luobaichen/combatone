@@ -6,6 +6,8 @@ Intermediate/
 Saved/
 .vs/
 *.sln
+*.slnx
+.vsconfig
 *.suo
 *.opensdf
 *.sdf

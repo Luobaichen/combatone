@@ -7,12 +7,17 @@ UE 5.8.3 C++ 近战战斗 Demo（个人项目）。
 - [x] 工程骨架：UE 5.8 C++ 工程，运行时模块 `CombatCore`
 - [x] 测试地图 `Content/Maps/L_CombatCore`（地板、参照方块、PlayerStart、太阳光/天光/大气）
 - [x] 模板资产：Mannequin 网格/动画、Enhanced Input 资产
-- [ ] 角色、相机、Enhanced Input 移动/视角
+- [x] 角色、相机、Enhanced Input 移动/视角
 - [ ] 属性组件、受击接口、假人
 - [ ] 武器、近战扫掠判定
 - [ ] 动画通知状态驱动的判定窗口、轻/重击
 - [ ] 受击/死亡、翻滚、UMG HUD
 - [ ] 自动化测试、README 完整化
+
+## 文档
+
+- [`Docs/开发计划.md`](Docs/开发计划.md)：7 天计划、类清单、每日验收标准
+- [`Docs/Day1_角色与输入代码讲解.md`](Docs/Day1_角色与输入代码讲解.md)：Day 1 代码逐段讲解
 
 ## 构建
 
