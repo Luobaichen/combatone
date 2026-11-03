@@ -28,6 +28,9 @@ class COMBATCORE_API ACombatCoreCharacter : public ACharacter
 public:
 	ACombatCoreCharacter();
 
+	UFUNCTION(Exec)
+	void DebugHitDummy(float Damage);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;

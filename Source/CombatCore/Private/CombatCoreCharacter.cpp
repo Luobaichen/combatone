@@ -18,6 +18,11 @@
 #include "InputActionValue.h"
 #include "InputMappingContext.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Engine/World.h"
+#include "EngineUtils.h"
+#include "Combat/CombatCoreDummy.h"
+#include "Combat/CombatDamageable.h"
+#include "Combat/CombatTypes.h"
 
 ACombatCoreCharacter::ACombatCoreCharacter()
 {
@@ -221,4 +226,27 @@ void ACombatCoreCharacter::Look(const FInputActionValue& Value)
 	// extra user-facing sensitivity multiplier.
 	AddControllerYawInput(LookAxisVector.X * LookSensitivity);
 	AddControllerPitchInput(LookAxisVector.Y * LookSensitivity);
+}
+
+void ACombatCoreCharacter::DebugHitDummy(float Damage)
+{
+	UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	for (TActorIterator<ACombatCoreDummy> It(World); It; ++It)
+	{
+		FCombatHitInfo HitInfo;
+		HitInfo.Damage = Damage;
+		HitInfo.Instigator = this;
+		HitInfo.HitLocation = It->GetActorLocation();
+		HitInfo.HitBoneName = FName(TEXT("spine_01"));
+
+		ICombatDamageable::Execute_ApplyHit(*It, HitInfo);
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("DebugHitDummy: no ACombatCoreDummy in the level"));
 }
