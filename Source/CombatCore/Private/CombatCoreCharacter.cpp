@@ -1,7 +1,9 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "CombatCoreCharacter.h"
-
+#include "Combat/CombatWeapon.h"
+#include "Combat/MeleeTraceComponent.h"
+#include "InputCoreTypes.h"
 #include "CombatCore.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
@@ -122,11 +124,30 @@ ACombatCoreCharacter::ACombatCoreCharacter()
 	{
 		JumpAction = JumpAsset.Object;
 	}
+
+	MeleeTrace = CreateDefaultSubobject<UMeleeTraceComponent>(TEXT("MeleeTrace"));
+
+	WeaponClass = ACombatWeapon::StaticClass();
+
+
 }
 
 void ACombatCoreCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (WeaponClass) {
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		SpawnParams.Instigator = this;
+		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+		Weapon = GetWorld()->SpawnActor<ACombatWeapon>(WeaponClass, GetActorTransform(), SpawnParams);
+
+		if (Weapon) {
+			Weapon->AttachToCharacter(GetMesh(), HandSocketName);
+		}
+	}
 
 	// Keep the movement component in sync if MoveSpeed is changed in a
 	// Blueprint subclass.
@@ -192,6 +213,10 @@ void ACombatCoreCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		{
 			UE_LOG(LogCombatCore, Warning, TEXT("One or more input actions are missing on %s"), *GetName());
 		}
+
+		PlayerInputComponent->BindKey(EKeys::LeftMouseButton, IE_Pressed, this, &ACombatCoreCharacter::DebugStartSwing);
+		PlayerInputComponent->BindKey(EKeys::LeftMouseButton, IE_Released, this, &ACombatCoreCharacter::DebugStopSwing);
+
 	}
 	else
 	{
@@ -249,4 +274,23 @@ void ACombatCoreCharacter::DebugHitDummy(float Damage)
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("DebugHitDummy: no ACombatCoreDummy in the level"));
+}
+
+void ACombatCoreCharacter::DebugStartSwing()
+{
+	if (!Weapon || !MeleeTrace)
+	{
+		UE_LOG(LogCombatCore, Warning, TEXT("DebugStartSwing: weapon or trace component missing"));
+		return;
+	}
+
+	MeleeTrace->StartTrace(Weapon, 25.f, 15.f);
+}
+
+void ACombatCoreCharacter::DebugStopSwing()
+{
+	if (MeleeTrace)
+	{
+		MeleeTrace->StopTrace();
+	}
 }

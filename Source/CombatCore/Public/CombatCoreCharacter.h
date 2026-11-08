@@ -14,12 +14,11 @@ class UInputAction;
 class UInputMappingContext;
 struct FInputActionValue;
 
-/**
- * Player character for the CombatCore prototype.
- *
- * Day 1 scope: third-person camera and Enhanced Input movement/look.
- * Combat components are added in the following days.
- */
+
+class ACombatWeapon;
+class UMeleeTraceComponent;
+
+
 UCLASS()
 class COMBATCORE_API ACombatCoreCharacter : public ACharacter
 {
@@ -50,6 +49,21 @@ protected:
 	/** Mouse delta. The engine template keeps this in a separate context. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputMappingContext> MouseLookMappingContext;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	TObjectPtr<UMeleeTraceComponent> MeleeTrace;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+	TSubclassOf<ACombatWeapon>WeaponClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
+	FName HandSocketName = TEXT("HandGrip_R");
+
+	UPROPERTY()
+	TObjectPtr<ACombatWeapon> Weapon;
+
+	void DebugStartSwing();
+	void DebugStopSwing();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> MoveAction;
