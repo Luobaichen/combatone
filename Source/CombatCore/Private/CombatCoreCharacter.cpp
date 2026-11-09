@@ -1,6 +1,9 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "CombatCoreCharacter.h"
+
+#include "Animation/AnimMontage.h"
+#include "Combat/CombatAttributeComponent.h"
 #include "Combat/CombatWeapon.h"
 #include "Combat/MeleeTraceComponent.h"
 #include "InputCoreTypes.h"
@@ -125,11 +128,39 @@ ACombatCoreCharacter::ACombatCoreCharacter()
 		JumpAction = JumpAsset.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> AttackAsset(
+		TEXT("/Game/Input/Actions/IA_Attack.IA_Attack"));
+	if (AttackAsset.Succeeded())
+	{
+		AttackAction = AttackAsset.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction> HeavyAttackAsset(
+		TEXT("/Game/Input/Actions/IA_HeavyAttack.IA_HeavyAttack"));
+	if (HeavyAttackAsset.Succeeded())
+	{
+		HeavyAttackAction = HeavyAttackAsset.Object;
+	}
+
 	MeleeTrace = CreateDefaultSubobject<UMeleeTraceComponent>(TEXT("MeleeTrace"));
 
 	WeaponClass = ACombatWeapon::StaticClass();
 
+	AttributeComponent = CreateDefaultSubobject<UCombatAttributeComponent>(TEXT("AttributeComponent"));
 
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> LightMontageAsset(
+		TEXT("/Game/Animations/AM_LightAttack.AM_LightAttack"));
+	if (LightMontageAsset.Succeeded())
+	{
+		LightAttackMontage = LightMontageAsset.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> HeavyMontageAsset(
+		TEXT("/Game/Animations/AM_HeavyAttack.AM_HeavyAttack"));
+	if (HeavyMontageAsset.Succeeded())
+	{
+		HeavyAttackMontage = HeavyMontageAsset.Object;
+	}
 }
 
 void ACombatCoreCharacter::BeginPlay()
@@ -214,8 +245,17 @@ void ACombatCoreCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 			UE_LOG(LogCombatCore, Warning, TEXT("One or more input actions are missing on %s"), *GetName());
 		}
 
-		PlayerInputComponent->BindKey(EKeys::LeftMouseButton, IE_Pressed, this, &ACombatCoreCharacter::DebugStartSwing);
-		PlayerInputComponent->BindKey(EKeys::LeftMouseButton, IE_Released, this, &ACombatCoreCharacter::DebugStopSwing);
+		if (AttackAction)
+		{
+			EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started,
+				this, &ACombatCoreCharacter::LightAttack);
+		}
+
+		if (HeavyAttackAction)
+		{
+			EnhancedInputComponent->BindAction(HeavyAttackAction, ETriggerEvent::Started,
+				this, &ACombatCoreCharacter::HeavyAttack);
+		}
 
 	}
 	else
@@ -224,6 +264,57 @@ void ACombatCoreCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 			TEXT("'%s' failed to find an Enhanced Input component. This project uses Enhanced Input."),
 			*GetNameSafe(this));
 	}
+}
+
+void ACombatCoreCharacter::LightAttack()
+{
+	TryPlayAttack(LightAttackMontage, LightAttackStaminaCost);
+
+}
+
+void ACombatCoreCharacter::HeavyAttack()
+{
+	TryPlayAttack(HeavyAttackMontage, HeavyAttackStaminaCost);
+
+}
+
+void ACombatCoreCharacter::TryPlayAttack(UAnimMontage* Montage, float StaminaCost)
+{
+	if (!Montage)
+	{
+		UE_LOG(LogCombatCore, Warning, TEXT("[Attack] Montage is not set"));
+		return;
+	}
+
+	if (!AttributeComponent)
+	{
+		UE_LOG(LogCombatCore, Warning, TEXT("[Attack] AttributeComponent is missing"));
+		return;
+	}
+
+	UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
+	if (!AnimInstance)
+	{
+		UE_LOG(LogCombatCore, Warning, TEXT("[Attack] AnimInstance is missing"));
+		return;
+	}
+
+	if (AnimInstance->IsAnyMontagePlaying())
+	{
+		return;
+	}
+
+	if (!AttributeComponent->TryConsumeStamina(StaminaCost))
+	{
+		UE_LOG(LogCombatCore, Warning, TEXT("[Attack] Not enough stamina: need %.1f, have %.1f"),
+			StaminaCost, AttributeComponent->GetStamina());
+		return;
+	}
+	PlayAnimMontage(Montage);
+
+	UE_LOG(LogCombatCore, Log, TEXT("[Attack] Play %s (cost %.1f, stamina %.1f/%.1f)"),
+		*GetNameSafe(Montage), StaminaCost,
+		AttributeComponent->GetStamina(), AttributeComponent->GetMaxStamina());
 }
 
 void ACombatCoreCharacter::Move(const FInputActionValue& Value)
@@ -276,21 +367,8 @@ void ACombatCoreCharacter::DebugHitDummy(float Damage)
 	UE_LOG(LogTemp, Warning, TEXT("DebugHitDummy: no ACombatCoreDummy in the level"));
 }
 
-void ACombatCoreCharacter::DebugStartSwing()
+ACombatWeapon* ACombatCoreCharacter::GetWeapon() const
 {
-	if (!Weapon || !MeleeTrace)
-	{
-		UE_LOG(LogCombatCore, Warning, TEXT("DebugStartSwing: weapon or trace component missing"));
-		return;
-	}
-
-	MeleeTrace->StartTrace(Weapon, 25.f, 15.f);
+	return Weapon;
 }
 
-void ACombatCoreCharacter::DebugStopSwing()
-{
-	if (MeleeTrace)
-	{
-		MeleeTrace->StopTrace();
-	}
-}

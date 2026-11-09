@@ -19,7 +19,7 @@ UMeleeTraceComponent::UMeleeTraceComponent()
 	
 }
 
-void UMeleeTraceComponent::StartTrace(ACombatWeapon* InWeapon, float InDamage, float InRadius)
+void UMeleeTraceComponent::StartTrace(ACombatWeapon* InWeapon, float InDamage, float InRadius, bool bInHeavyAttack )
 {
 	if (!InWeapon) {
 		return;
@@ -28,6 +28,7 @@ void UMeleeTraceComponent::StartTrace(ACombatWeapon* InWeapon, float InDamage, f
 	Weapon = InWeapon;
 	Damage = InDamage;
 	Radius = FMath::Max(InRadius, 1.f);
+	bHeavyAttack = bInHeavyAttack;
 
 	HitActors.Reset();
 
@@ -37,7 +38,7 @@ void UMeleeTraceComponent::StartTrace(ACombatWeapon* InWeapon, float InDamage, f
 	bTracing = true;
 	SetComponentTickEnabled(true);
 
-	UE_LOG(LogTemp, Log, TEXT("[Trace]Stare(Damage=%.1f,Radius=%.1f)"), Damage, Radius);
+	UE_LOG(LogTemp, Log, TEXT("[Trace] Start (Damage=%.1f, Radius=%.1f)"), Damage, Radius);
 }
 
 void UMeleeTraceComponent::StopTrace()
@@ -114,11 +115,12 @@ void UMeleeTraceComponent::PerformSweep()
 		HitInfo.HitNormal = Hit.ImpactNormal;
 		HitInfo.Instigator = GetOwner();
 		HitInfo.HitBoneName = Hit.BoneName;
-		HitInfo.bHeavyAttack = false;
+		HitInfo.bHeavyAttack = bHeavyAttack;
 
 		ICombatDamageable::Execute_ApplyHit(HitActor, HitInfo);
 
-		UE_LOG(LogTemp, Log, TEXT("[Trace]Hit%s(Bone=%s)"), *GetNameSafe(HitActor), *Hit.BoneName.ToString());
+		
+		UE_LOG(LogTemp, Log, TEXT("[Trace] Hit %s (Bone=%s)"), *GetNameSafe(HitActor), *Hit.BoneName.ToString());
 
 
 	}

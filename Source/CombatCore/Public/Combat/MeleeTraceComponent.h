@@ -19,7 +19,7 @@ public:
 	UMeleeTraceComponent();
 
 	UFUNCTION(BlueprintCallable, Category = "Combat|Trace")
-	void StartTrace(ACombatWeapon* InWeapon, float InDamage, float InRadius);
+	void StartTrace(ACombatWeapon* InWeapon, float InDamage, float InRadius,bool bInHeavyAttack = false);
 
 	UFUNCTION(BlueprintCallable, Category = "Combat|Trace")
 	void StopTrace();
@@ -41,6 +41,7 @@ private:
 	float Radius = 15.f;
 
 	bool bTracing = false;
+	bool bHeavyAttack = false;
 
 	FVector PreviousStart = FVector::ZeroVector;
 	FVector PreviousEnd = FVector::ZeroVector;

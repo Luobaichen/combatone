@@ -13,10 +13,10 @@ class UCameraComponent;
 class UInputAction;
 class UInputMappingContext;
 struct FInputActionValue;
-
-
 class ACombatWeapon;
 class UMeleeTraceComponent;
+class UCombatAttributeComponent;
+class UAnimMontage;
 
 
 UCLASS()
@@ -29,6 +29,9 @@ public:
 
 	UFUNCTION(Exec)
 	void DebugHitDummy(float Damage);
+
+	UFUNCTION(BlueprintPure, Category = "Combat|Weapon")
+	ACombatWeapon* GetWeapon() const;
 
 protected:
 	virtual void BeginPlay() override;
@@ -53,8 +56,24 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	TObjectPtr<UMeleeTraceComponent> MeleeTrace;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	TObjectPtr<UCombatAttributeComponent> AttributeComponent;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
 	TSubclassOf<ACombatWeapon>WeaponClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Attack")
+	TObjectPtr<UAnimMontage> LightAttackMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Attack")
+	TObjectPtr<UAnimMontage> HeavyAttackMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Attack", meta = (ClampMin = "0.0"))
+	float LightAttackStaminaCost = 10.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Attack", meta = (ClampMin = "0.0"))
+	float HeavyAttackStaminaCost = 25.f;
+
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
 	FName HandSocketName = TEXT("HandGrip_R");
@@ -62,9 +81,10 @@ protected:
 	UPROPERTY()
 	TObjectPtr<ACombatWeapon> Weapon;
 
-	void DebugStartSwing();
-	void DebugStopSwing();
-
+	void LightAttack();
+	void HeavyAttack();
+	void TryPlayAttack(UAnimMontage* Montage, float StaminaCost);
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> MoveAction;
 
@@ -76,6 +96,12 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> JumpAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> AttackAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> HeavyAttackAction;
 
 	/** Ground movement speed in cm/s. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")
