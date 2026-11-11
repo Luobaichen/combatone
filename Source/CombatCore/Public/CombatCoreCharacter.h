@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Combat/CombatDamageable.h"
 #include "GameFramework/Character.h"
 #include "CombatCoreCharacter.generated.h"
 
@@ -17,10 +18,10 @@ class ACombatWeapon;
 class UMeleeTraceComponent;
 class UCombatAttributeComponent;
 class UAnimMontage;
-
+class UCombatHUDWidget;
 
 UCLASS()
-class COMBATCORE_API ACombatCoreCharacter : public ACharacter
+class COMBATCORE_API ACombatCoreCharacter : public ACharacter,public ICombatDamageable
 {
 	GENERATED_BODY()
 
@@ -33,9 +34,20 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Combat|Weapon")
 	ACombatWeapon* GetWeapon() const;
 
+	virtual void ApplyHit_Implementation(const FCombatHitInfo& HitInfo) override;
+
+	UFUNCTION(Exec)
+	void DebugHurtSelf(float Damage);
+
+	UFUNCTION(BlueprintPure, Category = "Combat|Attributes")
+	UCombatAttributeComponent* GetAttributeComponent() const;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+
+	UFUNCTION()
+	void HandleDeath(AActor* Killer);
 
 	/** Camera boom: keeps the camera at a fixed distance behind the character. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
@@ -74,6 +86,20 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Attack", meta = (ClampMin = "0.0"))
 	float HeavyAttackStaminaCost = 25.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Animation", meta = (ClampMin = "0.0"))
+	float RollStaminaCost = 15.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Animation")
+	TObjectPtr<UAnimMontage> HitReactMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Animation")
+	TObjectPtr<UAnimMontage> RollMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<UCombatHUDWidget> HUDWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UCombatHUDWidget> HUDWidget;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
 	FName HandSocketName = TEXT("HandGrip_R");
@@ -84,7 +110,8 @@ protected:
 	void LightAttack();
 	void HeavyAttack();
 	void TryPlayAttack(UAnimMontage* Montage, float StaminaCost);
-	
+	void Roll();
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> MoveAction;
 
@@ -102,6 +129,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> HeavyAttackAction;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> RollAction;
 
 	/** Ground movement speed in cm/s. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Movement")

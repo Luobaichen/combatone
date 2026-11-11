@@ -2,6 +2,8 @@
 
 #include "CombatCoreCharacter.h"
 
+#include "UI/CombatHUDWidget.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Animation/AnimMontage.h"
 #include "Combat/CombatAttributeComponent.h"
 #include "Combat/CombatWeapon.h"
@@ -142,6 +144,34 @@ ACombatCoreCharacter::ACombatCoreCharacter()
 		HeavyAttackAction = HeavyAttackAsset.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> RollAsset(
+		TEXT("/Game/Input/Actions/IA_Roll.IA_Roll"));
+	if (RollAsset.Succeeded())
+	{
+		RollAction = RollAsset.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> HitReactAsset(
+		TEXT("/Game/Animations/AM_HitReact.AM_HitReact"));
+	if (HitReactAsset.Succeeded())
+	{
+		HitReactMontage = HitReactAsset.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> RollMontageAsset(
+		TEXT("/Game/Animations/AM_Roll.AM_Roll"));
+	if (RollMontageAsset.Succeeded())
+	{
+		RollMontage = RollMontageAsset.Object;
+	}
+
+	static ConstructorHelpers::FClassFinder<UCombatHUDWidget> HUDAsset(
+		TEXT("/Game/UI/WBP_CombatHUD"));
+	if (HUDAsset.Succeeded())
+	{
+		HUDWidgetClass = HUDAsset.Class;
+	}
+
 	MeleeTrace = CreateDefaultSubobject<UMeleeTraceComponent>(TEXT("MeleeTrace"));
 
 	WeaponClass = ACombatWeapon::StaticClass();
@@ -210,6 +240,21 @@ void ACombatCoreCharacter::BeginPlay()
 			}
 		}
 	}
+
+	if (AttributeComponent)
+	{
+		AttributeComponent->OnDeath.AddDynamic(this, &ACombatCoreCharacter::HandleDeath);
+	}
+
+	if (IsLocallyControlled() && HUDWidgetClass)
+	{
+		HUDWidget = CreateWidget<UCombatHUDWidget>(GetWorld(), HUDWidgetClass);
+		if (HUDWidget)
+		{
+			HUDWidget->SetAttributeComponent(AttributeComponent);
+			HUDWidget->AddToViewport();
+		}
+	}
 }
 
 void ACombatCoreCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -257,6 +302,12 @@ void ACombatCoreCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 				this, &ACombatCoreCharacter::HeavyAttack);
 		}
 
+		if (RollAction)                                        
+		{
+			EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Started,
+				this, &ACombatCoreCharacter::Roll);
+		}
+
 	}
 	else
 	{
@@ -264,6 +315,22 @@ void ACombatCoreCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 			TEXT("'%s' failed to find an Enhanced Input component. This project uses Enhanced Input."),
 			*GetNameSafe(this));
 	}
+}
+
+void ACombatCoreCharacter::HandleDeath(AActor* Killer)
+{
+	UE_LOG(LogCombatCore, Warning, TEXT("[Player] %s is dead. Killer: %s"),
+		*GetName(), *GetNameSafe(Killer));
+
+	if (UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr)
+	{
+		AnimInstance->StopAllMontages(0.1f);
+	}
+
+	GetCharacterMovement()->DisableMovement();
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionProfileName(TEXT("Ragdoll"));
+	GetMesh()->SetSimulatePhysics(true);
 }
 
 void ACombatCoreCharacter::LightAttack()
@@ -292,6 +359,13 @@ void ACombatCoreCharacter::TryPlayAttack(UAnimMontage* Montage, float StaminaCos
 		return;
 	}
 
+	if (AttributeComponent->IsDead())
+	{
+		return;
+	}
+
+
+
 	UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
 	if (!AnimInstance)
 	{
@@ -315,6 +389,45 @@ void ACombatCoreCharacter::TryPlayAttack(UAnimMontage* Montage, float StaminaCos
 	UE_LOG(LogCombatCore, Log, TEXT("[Attack] Play %s (cost %.1f, stamina %.1f/%.1f)"),
 		*GetNameSafe(Montage), StaminaCost,
 		AttributeComponent->GetStamina(), AttributeComponent->GetMaxStamina());
+}
+
+void ACombatCoreCharacter::Roll()
+{
+	if (!AttributeComponent || AttributeComponent->IsDead())
+	{
+		return;
+	}
+
+	if (!RollMontage)
+	{
+		UE_LOG(LogCombatCore, Warning, TEXT("[Roll] RollMontage is not set"));
+		return;
+	}
+
+	UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
+	if (!AnimInstance)
+	{
+		return;
+	}
+
+	if (AnimInstance->IsAnyMontagePlaying())
+	{
+		return;
+	}
+
+	if (!AttributeComponent->TryConsumeStamina(RollStaminaCost))
+	{
+		UE_LOG(LogCombatCore, Warning, TEXT("[Roll] Not enough stamina: need %.1f, have %.1f"),
+			RollStaminaCost, AttributeComponent->GetStamina());
+		return;
+	}
+
+	PlayAnimMontage(RollMontage);
+
+	UE_LOG(LogCombatCore, Log, TEXT("[Roll] Play %s (stamina %.1f/%.1f)"),
+		*GetNameSafe(RollMontage),
+		AttributeComponent->GetStamina(), AttributeComponent->GetMaxStamina());
+
 }
 
 void ACombatCoreCharacter::Move(const FInputActionValue& Value)
@@ -370,5 +483,51 @@ void ACombatCoreCharacter::DebugHitDummy(float Damage)
 ACombatWeapon* ACombatCoreCharacter::GetWeapon() const
 {
 	return Weapon;
+}
+
+void ACombatCoreCharacter::ApplyHit_Implementation(const FCombatHitInfo& HitInfo)
+{
+
+	if (!AttributeComponent || AttributeComponent->IsDead())
+	{
+		return;
+	}
+
+
+	const float ActualDamage = AttributeComponent->ApplyDamage(HitInfo.Damage, HitInfo.Instigator);
+
+	UE_LOG(LogCombatCore, Log,
+		TEXT("[Player] Hit by %s: Actual=%.1f, HP=%.1f/%.1f, Heavy=%s"),
+		*GetNameSafe(HitInfo.Instigator), ActualDamage,
+		AttributeComponent->GetHealth(), AttributeComponent->GetMaxHealth(),
+		HitInfo.bHeavyAttack ? TEXT("yes") : TEXT("no"));
+
+	if (!AttributeComponent->IsDead() && HitReactMontage)
+	{
+		if (UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr)
+		{
+			if (!AnimInstance->IsAnyMontagePlaying())
+			{
+				PlayAnimMontage(HitReactMontage);
+			}
+		}
+	}
+}
+
+void ACombatCoreCharacter::DebugHurtSelf(float Damage)
+{
+
+	FCombatHitInfo HitInfo;
+	HitInfo.Damage = Damage;
+	HitInfo.Instigator = this;
+	HitInfo.HitLocation = GetActorLocation();
+	HitInfo.HitBoneName = FName(TEXT("spine_01"));
+
+	ICombatDamageable::Execute_ApplyHit(this, HitInfo);
+}
+
+UCombatAttributeComponent* ACombatCoreCharacter::GetAttributeComponent() const
+{
+	return AttributeComponent;
 }
 

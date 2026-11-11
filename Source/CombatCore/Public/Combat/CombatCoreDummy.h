@@ -7,6 +7,7 @@
 
 class UCombatAttributeComponent;
 class UTextRenderComponent;
+class UAnimMontage;
 
 UCLASS()
 class COMBATCORE_API ACombatCoreDummy : public ACharacter, public ICombatDamageable
@@ -30,6 +31,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
 	TObjectPtr<UCombatAttributeComponent> AttributeComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Animation")
+	TObjectPtr<UAnimMontage> HitReactMontage;
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Combat")
 	TObjectPtr<UTextRenderComponent>HealthText;

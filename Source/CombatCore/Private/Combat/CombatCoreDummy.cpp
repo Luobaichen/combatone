@@ -1,4 +1,6 @@
 #include"Combat/CombatCoreDummy.h"
+
+#include "Animation/AnimMontage.h"
 #include"Animation/AnimInstance.h"
 #include"Combat/CombatAttributeComponent.h"
 #include"Components/CapsuleComponent.h"
@@ -38,7 +40,12 @@ ACombatCoreDummy::ACombatCoreDummy()
 		GetMesh()->SetAnimInstanceClass(AnimBP.Class);
 	}
 
-
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> HitReactAsset(
+		TEXT("/Game/Animations/AM_HitReact.AM_HitReact"));
+	if (HitReactAsset.Succeeded())
+	{
+		HitReactMontage = HitReactAsset.Object;
+	}
 
 }
 
@@ -66,10 +73,26 @@ void ACombatCoreDummy::ApplyHit_Implementation(const FCombatHitInfo& HitInfo)
 	const float ActualDamage = AttributeComponent->ApplyDamage(HitInfo.Damage, HitInfo.Instigator);
 
 	UE_LOG(LogTemp, Log, TEXT("[Dummy]Hit by %s: Actual=%.1f,HP=%.1f/%.1f,Bone=%s,Heavy=%s"), *GetNameSafe(HitInfo.Instigator), ActualDamage, AttributeComponent->GetHealth(), AttributeComponent->GetMaxHealth(), *HitInfo.HitBoneName.ToString(), HitInfo.bHeavyAttack ? TEXT("yes") : TEXT("no"));
+
+	if (!AttributeComponent->IsDead() && HitReactMontage)
+	{
+		if (UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr)
+		{
+			if (!AnimInstance->IsAnyMontagePlaying())
+			{
+				PlayAnimMontage(HitReactMontage);
+			}
+		}
+	}
 }
 void ACombatCoreDummy::HandleDeath(AActor* Killer)
 {
 	UE_LOG(LogTemp,Warning,TEXT("[Dummy] %s is dead.Killer: %s"), *GetName(), *GetNameSafe(Killer));
+
+	if (UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr)
+	{
+		AnimInstance->StopAllMontages(0.1f);
+	}
 
 	GetCharacterMovement()->DisableMovement();
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
