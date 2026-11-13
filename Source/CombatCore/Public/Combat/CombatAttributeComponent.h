@@ -64,6 +64,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Combat|Attributes")
 	bool IsDead() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Combat|Attributes")
+	void ResetAttributes();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -76,5 +79,6 @@ private:
 
 	bool bIsDead = false;
 
+	
 
 };

@@ -9,8 +9,15 @@ void UCombatAttributeComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	ResetAttributes();
+	
+}
+
+void UCombatAttributeComponent::ResetAttributes()
+{
 	Health = MaxHealth;
 	Stamina = MaxStamina;
+	bIsDead = false;
 }
 
 float UCombatAttributeComponent::ApplyDamage(float Amount, AActor* DamageCauser)
@@ -20,6 +27,7 @@ float UCombatAttributeComponent::ApplyDamage(float Amount, AActor* DamageCauser)
 	}
 
 	const float ActualDamage = FMath::Min(Amount, Health);
+	
 	Health -= ActualDamage;
 
 	OnHealthChanged.Broadcast(Health, MaxHealth);
