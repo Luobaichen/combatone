@@ -8,6 +8,8 @@ class USceneComponent;
 class UStaticMeshComponent;
 class USkeletalMeshComponent;
 
+/** Invisible trace anchor. Fists are the weapon: attach it to a hand socket and
+ *  both trace points sit on the hand. Add a mesh here for a real weapon. */
 UCLASS()
 class COMBATCORE_API ACombatWeapon : public AActor
 {
@@ -19,7 +21,7 @@ public:
     UFUNCTION(BlueprintPure, Category = "Combat|Weapon")
     FVector GetTraceStart() const;
 
-    /** End of the blade, in world space. */
+    /** End of the trace segment, in world space. */
     UFUNCTION(BlueprintPure, Category = "Combat|Weapon")
     FVector GetTraceEnd() const;
 
@@ -34,15 +36,17 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Weapon")
     FName TraceEndSocket = NAME_None;
 
-    /** Blade start/end in the weapon actor's local space, in centimeters. */
+    /** Trace start/end in the anchor's local space, in centimeters.
+     *  Both are zero so the sweep spheres follow the fist. */
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Weapon")
-    FVector TraceStartOffset = FVector(5.f, 0.f, 0.f);
+    FVector TraceStartOffset = FVector::ZeroVector;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Weapon")
-    FVector TraceEndOffset = FVector(85.f, 0.f, 0.f);
+    FVector TraceEndOffset = FVector::ZeroVector;
 
+    /** Extra rotation after snapping to the hand socket. Zero for fists. */
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Weapon")
-    FRotator AttachRotationOffset = FRotator(90.f, 0.f, 0.f);
+    FRotator AttachRotationOffset = FRotator::ZeroRotator;
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Weapon")
 	TObjectPtr<USceneComponent> Root;

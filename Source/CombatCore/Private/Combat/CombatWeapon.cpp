@@ -3,8 +3,6 @@
 #include "Components/SceneComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Engine/StaticMesh.h"
-#include "UObject/ConstructorHelpers.h"
 
 ACombatWeapon::ACombatWeapon()
 {
@@ -13,21 +11,13 @@ ACombatWeapon::ACombatWeapon()
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(Root);
 
+	// No visible mesh by default: the fists are the weapon. This actor only
+	// carries the trace points, attached to the hand socket in BeginPlay.
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(Root);
 
-	Mesh->SetRelativeLocation(FVector(45.f, 0.f, 0.f));
-	Mesh->SetRelativeScale3D(FVector(0.9f, 0.06f, 0.06f));
-
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh->SetGenerateOverlapEvents(false);
-
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeAsset(TEXT("/Engine/BasicShapes/Cube.Cube"));
-
-	if (CubeAsset.Succeeded())
-	{
-		Mesh->SetStaticMesh(CubeAsset.Object);
-	}
 }
 
 FVector ACombatWeapon::GetTraceStart() const

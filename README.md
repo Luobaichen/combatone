@@ -45,7 +45,7 @@ Enhanced Input (IMC_Default)
 | `UCombatAttributeComponent`    | 生命 / 体力规则与事件，不依赖角色           |
 | `ICombatDamageable`            | 受击接口：攻击方不需要知道目标类型            |
 | `ACombatCoreDummy`             | 训练假人，实现同一个受击接口               |
-| `ACombatWeapon`                | 武器 Actor，提供扫掠起点 / 终点 Socket  |
+| `ACombatWeapon`                | 不可见的判定锚点：挂在手部 Socket 上，空手时两个扫掠点都在拳头上 |
 | `UMeleeTraceComponent`         | 扫掠、碰撞查询、同一次挥砍去重              |
 | `UCombatAnimNotifyState_Trace` | 在动画通知窗口内开关扫掠                 |
 | `UCombatHUDWidget`             | HUD 的 C++ 基类，订阅属性事件          |
