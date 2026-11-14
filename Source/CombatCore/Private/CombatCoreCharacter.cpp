@@ -197,7 +197,8 @@ void ACombatCoreCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (WeaponClass) {
+	if (WeaponClass)
+	{
 		FActorSpawnParameters SpawnParams;
 		SpawnParams.Owner = this;
 		SpawnParams.Instigator = this;
@@ -205,7 +206,8 @@ void ACombatCoreCharacter::BeginPlay()
 
 		Weapon = GetWorld()->SpawnActor<ACombatWeapon>(WeaponClass, GetActorTransform(), SpawnParams);
 
-		if (Weapon) {
+		if (Weapon)
+		{
 			Weapon->AttachToCharacter(GetMesh(), HandSocketName);
 		}
 	}
@@ -302,12 +304,11 @@ void ACombatCoreCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 				this, &ACombatCoreCharacter::HeavyAttack);
 		}
 
-		if (RollAction)                                        
+		if (RollAction)
 		{
 			EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Started,
 				this, &ACombatCoreCharacter::Roll);
 		}
-
 	}
 	else
 	{
@@ -336,13 +337,11 @@ void ACombatCoreCharacter::HandleDeath(AActor* Killer)
 void ACombatCoreCharacter::LightAttack()
 {
 	TryPlayAttack(LightAttackMontage, LightAttackStaminaCost);
-
 }
 
 void ACombatCoreCharacter::HeavyAttack()
 {
 	TryPlayAttack(HeavyAttackMontage, HeavyAttackStaminaCost);
-
 }
 
 void ACombatCoreCharacter::TryPlayAttack(UAnimMontage* Montage, float StaminaCost)
@@ -363,8 +362,6 @@ void ACombatCoreCharacter::TryPlayAttack(UAnimMontage* Montage, float StaminaCos
 	{
 		return;
 	}
-
-
 
 	UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
 	if (!AnimInstance)
@@ -427,7 +424,6 @@ void ACombatCoreCharacter::Roll()
 	UE_LOG(LogCombatCore, Log, TEXT("[Roll] Play %s (stamina %.1f/%.1f)"),
 		*GetNameSafe(RollMontage),
 		AttributeComponent->GetStamina(), AttributeComponent->GetMaxStamina());
-
 }
 
 void ACombatCoreCharacter::Move(const FInputActionValue& Value)
@@ -477,7 +473,7 @@ void ACombatCoreCharacter::DebugHitDummy(float Damage)
 		return;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("DebugHitDummy: no ACombatCoreDummy in the level"));
+	UE_LOG(LogCombatCore, Warning, TEXT("DebugHitDummy: no ACombatCoreDummy in the level"));
 }
 
 ACombatWeapon* ACombatCoreCharacter::GetWeapon() const
@@ -487,12 +483,10 @@ ACombatWeapon* ACombatCoreCharacter::GetWeapon() const
 
 void ACombatCoreCharacter::ApplyHit_Implementation(const FCombatHitInfo& HitInfo)
 {
-
 	if (!AttributeComponent || AttributeComponent->IsDead())
 	{
 		return;
 	}
-
 
 	const float ActualDamage = AttributeComponent->ApplyDamage(HitInfo.Damage, HitInfo.Instigator);
 
@@ -516,7 +510,6 @@ void ACombatCoreCharacter::ApplyHit_Implementation(const FCombatHitInfo& HitInfo
 
 void ACombatCoreCharacter::DebugHurtSelf(float Damage)
 {
-
 	FCombatHitInfo HitInfo;
 	HitInfo.Damage = Damage;
 	HitInfo.Instigator = this;
@@ -530,4 +523,3 @@ UCombatAttributeComponent* ACombatCoreCharacter::GetAttributeComponent() const
 {
 	return AttributeComponent;
 }
-

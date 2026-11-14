@@ -17,7 +17,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCombatCoreDamageTest,
     "CombatCore.Attribute.Damage",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
-bool FCombatCoreDamageTest::RunTest(const FString& Parameters)
+bool FCombatCoreDamageTest::RunTest(const FString& /*Parameters*/)
 {
     UCombatAttributeComponent* Attributes = MakeTestAttributes();
 
@@ -34,8 +34,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCombatCoreHealthFloorTest,
     "CombatCore.Attribute.HealthFloor",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
-
-    bool FCombatCoreHealthFloorTest::RunTest(const FString& Parameters)
+bool FCombatCoreHealthFloorTest::RunTest(const FString& /*Parameters*/)
 {
     UCombatAttributeComponent* Attributes = MakeTestAttributes();
 
@@ -52,7 +51,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCombatCoreHealCapTest,
     "CombatCore.Attribute.HealCap",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
-    bool FCombatCoreHealCapTest::RunTest(const FString& Parameters)
+bool FCombatCoreHealCapTest::RunTest(const FString& /*Parameters*/)
 {
     UCombatAttributeComponent* Attributes = MakeTestAttributes();
 
@@ -70,7 +69,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCombatCoreStaminaTest,
     "CombatCore.Attribute.Stamina",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
-    bool FCombatCoreStaminaTest::RunTest(const FString& Parameters)
+bool FCombatCoreStaminaTest::RunTest(const FString& /*Parameters*/)
 {
     UCombatAttributeComponent* Attributes = MakeTestAttributes();
 
@@ -88,7 +87,7 @@ IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCombatCoreDeathOnceTest,
     "CombatCore.Attribute.DeathOnce",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 
-    bool FCombatCoreDeathOnceTest::RunTest(const FString& Parameters)
+bool FCombatCoreDeathOnceTest::RunTest(const FString& /*Parameters*/)
 {
     UCombatAttributeComponent* Attributes = MakeTestAttributes();
     UCombatAttributeTestListener* Listener = NewObject<UCombatAttributeTestListener>();

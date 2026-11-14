@@ -1,19 +1,20 @@
-#include"Combat/CombatCoreDummy.h"
+#include "Combat/CombatCoreDummy.h"
 
+#include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
-#include"Animation/AnimInstance.h"
-#include"Combat/CombatAttributeComponent.h"
-#include"Components/CapsuleComponent.h"
-#include"Components/SkeletalMeshComponent.h"
-#include"Components/TextRenderComponent.h"
-#include"Engine/SkeletalMesh.h"
-#include"GameFramework/CharacterMovementComponent.h"
-#include"UObject/ConstructorHelpers.h"
+#include "Combat/CombatAttributeComponent.h"
+#include "CombatCore.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Components/TextRenderComponent.h"
+#include "Engine/SkeletalMesh.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "UObject/ConstructorHelpers.h"
 
 ACombatCoreDummy::ACombatCoreDummy()
 {
 	AttributeComponent = CreateDefaultSubobject<UCombatAttributeComponent>(TEXT("AttributeComponent"));
-	
+
 	HealthText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("HealthText"));
 
 	HealthText->SetupAttachment(GetCapsuleComponent());
@@ -53,13 +54,12 @@ void ACombatCoreDummy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (AttributeComponent) {
-
+	if (AttributeComponent)
+	{
 		AttributeComponent->OnHealthChanged.AddDynamic(this, &ACombatCoreDummy::HandleHealthChanged);
 		AttributeComponent->OnDeath.AddDynamic(this, &ACombatCoreDummy::HandleDeath);
 
 		UpdateHealthText(AttributeComponent->GetHealth(), AttributeComponent->GetMaxHealth());
-
 	}
 }
 
@@ -72,7 +72,14 @@ void ACombatCoreDummy::ApplyHit_Implementation(const FCombatHitInfo& HitInfo)
 
 	const float ActualDamage = AttributeComponent->ApplyDamage(HitInfo.Damage, HitInfo.Instigator);
 
-	UE_LOG(LogTemp, Log, TEXT("[Dummy]Hit by %s: Actual=%.1f,HP=%.1f/%.1f,Bone=%s,Heavy=%s"), *GetNameSafe(HitInfo.Instigator), ActualDamage, AttributeComponent->GetHealth(), AttributeComponent->GetMaxHealth(), *HitInfo.HitBoneName.ToString(), HitInfo.bHeavyAttack ? TEXT("yes") : TEXT("no"));
+	UE_LOG(LogCombatCore, Log,
+		TEXT("[Dummy] Hit by %s: Actual=%.1f, HP=%.1f/%.1f, Bone=%s, Heavy=%s"),
+		*GetNameSafe(HitInfo.Instigator),
+		ActualDamage,
+		AttributeComponent->GetHealth(),
+		AttributeComponent->GetMaxHealth(),
+		*HitInfo.HitBoneName.ToString(),
+		HitInfo.bHeavyAttack ? TEXT("yes") : TEXT("no"));
 
 	if (!AttributeComponent->IsDead() && HitReactMontage)
 	{
@@ -85,9 +92,13 @@ void ACombatCoreDummy::ApplyHit_Implementation(const FCombatHitInfo& HitInfo)
 		}
 	}
 }
+
 void ACombatCoreDummy::HandleDeath(AActor* Killer)
 {
-	UE_LOG(LogTemp,Warning,TEXT("[Dummy] %s is dead.Killer: %s"), *GetName(), *GetNameSafe(Killer));
+	UE_LOG(LogCombatCore, Warning,
+		TEXT("[Dummy] %s is dead. Killer: %s"),
+		*GetName(),
+		*GetNameSafe(Killer));
 
 	if (UAnimInstance* AnimInstance = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr)
 	{
@@ -104,10 +115,7 @@ void ACombatCoreDummy::HandleDeath(AActor* Killer)
 	if (HealthText)
 	{
 		HealthText->SetText(FText::FromString(TEXT("DEAD")));
-
 	}
-
-	
 }
 
 void ACombatCoreDummy::UpdateHealthText(float NewHealth, float MaxHealth)

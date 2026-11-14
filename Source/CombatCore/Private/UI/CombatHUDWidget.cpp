@@ -74,4 +74,3 @@ void UCombatHUDWidget::Refresh()
     HandleHealthChanged(Health, MaxHealth);
     HandleStaminaChanged(Stamina, MaxStamina);
 }
-

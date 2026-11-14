@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -14,9 +12,8 @@ UCLASS()
 class COMBATCORE_API ACombatWeapon : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
+
+public:
 	ACombatWeapon();
 
     UFUNCTION(BlueprintPure, Category = "Combat|Weapon")
@@ -47,13 +44,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Weapon")
     FRotator AttachRotationOffset = FRotator(90.f, 0.f, 0.f);
 protected:
-	
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Weapon")
-    TObjectPtr<USceneComponent> Root;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Weapon")
+	TObjectPtr<USceneComponent> Root;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Weapon")
-    TObjectPtr<UStaticMeshComponent> Mesh;
-
-
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat|Weapon")
+	TObjectPtr<UStaticMeshComponent> Mesh;
 };

@@ -1,21 +1,21 @@
 #pragma once
 
-#include"CoreMinimal.h"
-#include"GameFramework/Character.h"
-#include"Combat/CombatDamageable.h"
-#include"CombatCoreDummy.generated.h"
+#include "CoreMinimal.h"
+#include "GameFramework/Character.h"
+#include "Combat/CombatDamageable.h"
+#include "CombatCoreDummy.generated.h"
 
 class UCombatAttributeComponent;
 class UTextRenderComponent;
 class UAnimMontage;
 
+/** A training dummy. Implements the same damage interface as the player. */
 UCLASS()
 class COMBATCORE_API ACombatCoreDummy : public ACharacter, public ICombatDamageable
 {
 	GENERATED_BODY()
 
-
-public: 
+public:
 	ACombatCoreDummy();
 
 	virtual void ApplyHit_Implementation(const FCombatHitInfo& HitInfo) override;
@@ -35,8 +35,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Animation")
 	TObjectPtr<UAnimMontage> HitReactMontage;
 
-	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="Combat")
-	TObjectPtr<UTextRenderComponent>HealthText;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	TObjectPtr<UTextRenderComponent> HealthText;
 
 private:
 	void UpdateHealthText(float NewHealth, float MaxHealth);

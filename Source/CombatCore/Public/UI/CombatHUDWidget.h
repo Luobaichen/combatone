@@ -40,12 +40,9 @@ protected:
     UPROPERTY(meta = (BindWidgetOptional))
     TObjectPtr<UTextBlock> StaminaText;
 
-
 private:
     void Refresh();
 
     UPROPERTY()
     TObjectPtr<UCombatAttributeComponent> AttributeComponent;
-
-
 };

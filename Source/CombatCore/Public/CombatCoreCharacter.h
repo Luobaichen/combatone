@@ -21,7 +21,7 @@ class UAnimMontage;
 class UCombatHUDWidget;
 
 UCLASS()
-class COMBATCORE_API ACombatCoreCharacter : public ACharacter,public ICombatDamageable
+class COMBATCORE_API ACombatCoreCharacter : public ACharacter, public ICombatDamageable
 {
 	GENERATED_BODY()
 
@@ -72,7 +72,7 @@ protected:
 	TObjectPtr<UCombatAttributeComponent> AttributeComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat")
-	TSubclassOf<ACombatWeapon>WeaponClass;
+	TSubclassOf<ACombatWeapon> WeaponClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat|Attack")
 	TObjectPtr<UAnimMontage> LightAttackMontage;

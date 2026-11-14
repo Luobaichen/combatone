@@ -1,27 +1,22 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Combat/MeleeTraceComponent.h"
 
 #include "Combat/CombatDamageable.h"
 #include "Combat/CombatTypes.h"
 #include "Combat/CombatWeapon.h"
+#include "CombatCore.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"
 
-// Sets default values for this component's properties
 UMeleeTraceComponent::UMeleeTraceComponent()
 {
-	
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.bStartWithTickEnabled = false;
-
-	
 }
 
-void UMeleeTraceComponent::StartTrace(ACombatWeapon* InWeapon, float InDamage, float InRadius, bool bInHeavyAttack )
+void UMeleeTraceComponent::StartTrace(ACombatWeapon* InWeapon, float InDamage, float InRadius, bool bInHeavyAttack)
 {
-	if (!InWeapon) {
+	if (!InWeapon)
+	{
 		return;
 	}
 
@@ -38,7 +33,8 @@ void UMeleeTraceComponent::StartTrace(ACombatWeapon* InWeapon, float InDamage, f
 	bTracing = true;
 	SetComponentTickEnabled(true);
 
-	UE_LOG(LogTemp, Log, TEXT("[Trace] Start (Damage=%.1f, Radius=%.1f)"), Damage, Radius);
+	UE_LOG(LogCombatCore, Log,
+		TEXT("[Trace] Start (Damage=%.1f, Radius=%.1f)"), Damage, Radius);
 }
 
 void UMeleeTraceComponent::StopTrace()
@@ -47,14 +43,15 @@ void UMeleeTraceComponent::StopTrace()
 	SetComponentTickEnabled(false);
 	Weapon = nullptr;
 
-	UE_LOG(LogTemp, Log, TEXT("[Trace] Stop"));
+	UE_LOG(LogCombatCore, Log, TEXT("[Trace] Stop"));
 }
 
 void UMeleeTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (!bTracing || !IsValid(Weapon)) {
+	if (!bTracing || !IsValid(Weapon))
+	{
 		StopTrace();
 		return;
 	}
@@ -67,9 +64,9 @@ void UMeleeTraceComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 void UMeleeTraceComponent::PerformSweep()
 {
-
 	UWorld* World = GetWorld();
-	if (!World || !Weapon) {
+	if (!World || !Weapon)
+	{
 		return;
 	}
 
@@ -92,12 +89,14 @@ void UMeleeTraceComponent::PerformSweep()
 	for (const FHitResult& Hit : Hits)
 	{
 		AActor* HitActor = Hit.GetActor();
-		if (!HitActor) {
+		if (!HitActor)
+		{
 			continue;
 		}
 
 		const TWeakObjectPtr<AActor> WeakHit(HitActor);
-		if (HitActors.Contains(WeakHit)) {
+		if (HitActors.Contains(WeakHit))
+		{
 			continue;
 		}
 		HitActors.Add(WeakHit);
@@ -119,10 +118,10 @@ void UMeleeTraceComponent::PerformSweep()
 
 		ICombatDamageable::Execute_ApplyHit(HitActor, HitInfo);
 
-		
-		UE_LOG(LogTemp, Log, TEXT("[Trace] Hit %s (Bone=%s)"), *GetNameSafe(HitActor), *Hit.BoneName.ToString());
-
-
+		UE_LOG(LogCombatCore, Log,
+			TEXT("[Trace] Hit %s (Bone=%s)"),
+			*GetNameSafe(HitActor),
+			*Hit.BoneName.ToString());
 	}
 
 	if (bDrawDebug)
@@ -134,16 +133,3 @@ void UMeleeTraceComponent::PerformSweep()
 		DrawDebugLine(World, PreviousEnd, CurrentEnd, FColor::Cyan, false, 0.5f, 0, 1.f);
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

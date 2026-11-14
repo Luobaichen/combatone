@@ -1,9 +1,9 @@
 #pragma once
 
-#include"CoreMinimal.h"
-#include"UObject/Interface.h"
-#include"Combat/CombatTypes.h"
-#include"CombatDamageable.generated.h"
+#include "CoreMinimal.h"
+#include "UObject/Interface.h"
+#include "Combat/CombatTypes.h"
+#include "CombatDamageable.generated.h"
 
 UINTERFACE(MinimalAPI,Blueprintable)
 class UCombatDamageable : public UInterface
@@ -19,8 +19,3 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Combat")
 	void ApplyHit(const FCombatHitInfo& HitInfo);
 };
-
-
-
-
-

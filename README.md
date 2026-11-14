@@ -99,6 +99,38 @@ PIE 调试命令（先按 `~` 打开控制台）：
 
 覆盖内容：伤害扣减、生命下限、治疗上限、体力不足拒绝、`OnDeath` 只广播一次。
 
+命令行无头跑法（结果看 `Saved/Logs/CombatCore.log`）：
+
+```bat
+UnrealEditor-Cmd.exe "D:\Myproject\CombatCore\CombatCore.uproject" ^
+  -ExecCmds="Automation RunTests CombatCore.Attribute" ^
+  -unattended -nopause -testexit="Automation Test Queue Empty" -NullRHI -NoSplash -log
+```
+
+## 验收记录（2026-11-14）
+
+- 构建：`CombatCoreEditor Win64 Development` — `Result: Succeeded`，0 error
+- 自动化测试：`CombatCore.Attribute.*` — 5/5 `Success`，`Automation Test Queue Empty`
+- PIE（`L_CombatCore`，真实键鼠输入）9 项验收全部通过：
+  - 轻击：假人 100 → 75，体力 100 → 90，日志 `Actual=25.0, Heavy=no`
+  - 重击：假人 75 → 25，体力 90 → 65，日志 `Actual=50.0, Heavy=yes`
+  - 第三击致死：假人显示 `DEAD`、切换布娃娃；死亡后不再受击
+  - 翻滚：体力 −15，动作结束后移动/攻击恢复正常
+  - 体力不足：不播放、不扣体力，日志 `Not enough stamina`
+  - `DebugHurtSelf 20` × 5：玩家 100 → 0，死亡布娃娃；死亡后攻击/翻滚无效
+  - 去重：每次判定窗口只出现一条 `[Trace] Hit`
+  - 移动中攻击：不穿透，判定球跟随武器
+- HUD：血条红色、体力条绿色；实测宽度约屏幕的 35%（`RenderTransform.ScaleX=0.35`）；
+  血量降到 0 时 Percent=0，无负数 / NaN
+- 演示：`Docs/media/day6_combat_demo.gif`（12 秒）
+
+已知限制：本项目是单机 Demo，不含联网、GAS、敌人 AI；第三方翻滚动画
+`A_RollUE5` 仅用于本地学习，公开分发前需替换。HUD 只有血条/体力条，
+WBP 中没有放置数值文本控件（`HealthText` / `StaminaText` 为可选的 BindWidget），
+因此无文字读数，数值以日志和条长变化为准。
+
+Day 7 收尾过程见 [`Docs/Day7_收尾与最终验收_手把手.md`](Docs/Day7_收尾与最终验收_手把手.md)。
+
 ## 第三方资产
 
 - `Content/Characters/Mannequins/**`、`Content/Input/**`：Unreal Engine 5.8 Third Person 模板（Epic Games，遵循 UE EULA）。

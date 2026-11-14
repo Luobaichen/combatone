@@ -15,3 +15,6 @@ Saved/
 *.VC.opendb
 *.xcodeproj
 *.xcworkspace
+
+# Raw screen recordings: keep the final GIF, not the source video
+Docs/media/*.mp4

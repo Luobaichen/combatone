@@ -1,14 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Combat/CombatWeapon.h"
 
-#include"Components/SceneComponent.h"
-#include"Components/SkeletalMeshComponent.h"
-#include"Components/StaticMeshComponent.h"
-#include"Engine/StaticMesh.h"
-#include"UObject/ConstructorHelpers.h"
-
+#include "Components/SceneComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
+#include "UObject/ConstructorHelpers.h"
 
 ACombatWeapon::ACombatWeapon()
 {
@@ -32,12 +28,8 @@ ACombatWeapon::ACombatWeapon()
 	{
 		Mesh->SetStaticMesh(CubeAsset.Object);
 	}
-
-
-
-
-
 }
+
 FVector ACombatWeapon::GetTraceStart() const
 {
 	if (Mesh && TraceStartSocket != NAME_None && Mesh->DoesSocketExist(TraceStartSocket))
@@ -47,18 +39,18 @@ FVector ACombatWeapon::GetTraceStart() const
 
 	return GetActorTransform().TransformPosition(TraceStartOffset);
 }
+
 FVector ACombatWeapon::GetTraceEnd() const
 {
-	if (Mesh && TraceEndSocket!=NAME_None&&Mesh->DoesSocketExist(TraceEndSocket)){
+	if (Mesh && TraceEndSocket != NAME_None && Mesh->DoesSocketExist(TraceEndSocket))
+	{
 		return Mesh->GetSocketLocation(TraceEndSocket);
-
 	}
 
 	return GetActorTransform().TransformPosition(TraceEndOffset);
-
 }
 
-void ACombatWeapon ::AttachToCharacter(USkeletalMeshComponent* CharacterMesh, FName HandSocket)
+void ACombatWeapon::AttachToCharacter(USkeletalMeshComponent* CharacterMesh, FName HandSocket)
 {
 	if (!CharacterMesh)
 	{
@@ -69,4 +61,3 @@ void ACombatWeapon ::AttachToCharacter(USkeletalMeshComponent* CharacterMesh, FN
 
 	AddActorLocalRotation(AttachRotationOffset);
 }
-

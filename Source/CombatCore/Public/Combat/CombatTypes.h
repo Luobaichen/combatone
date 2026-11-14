@@ -20,7 +20,7 @@ struct COMBATCORE_API FCombatHitInfo
 	FVector HitNormal = FVector::ZeroVector;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Combat")
-	TObjectPtr<AActor>Instigator = nullptr;
+	TObjectPtr<AActor> Instigator = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Combat")
 	FName HitBoneName = NAME_None;
@@ -28,9 +28,3 @@ struct COMBATCORE_API FCombatHitInfo
 	UPROPERTY(BlueprintReadWrite, Category = "Combat")
 	bool bHeavyAttack = false;
 };
-
-
-
-
-
-

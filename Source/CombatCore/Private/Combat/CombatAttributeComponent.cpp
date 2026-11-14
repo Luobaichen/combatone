@@ -10,7 +10,6 @@ void UCombatAttributeComponent::BeginPlay()
 	Super::BeginPlay();
 
 	ResetAttributes();
-	
 }
 
 void UCombatAttributeComponent::ResetAttributes()
@@ -27,7 +26,7 @@ float UCombatAttributeComponent::ApplyDamage(float Amount, AActor* DamageCauser)
 	}
 
 	const float ActualDamage = FMath::Min(Amount, Health);
-	
+
 	Health -= ActualDamage;
 
 	OnHealthChanged.Broadcast(Health, MaxHealth);
@@ -39,8 +38,6 @@ float UCombatAttributeComponent::ApplyDamage(float Amount, AActor* DamageCauser)
 	}
 
 	return ActualDamage;
-
-
 }
 
 float UCombatAttributeComponent::Heal(float Amount)
@@ -66,10 +63,9 @@ bool UCombatAttributeComponent::TryConsumeStamina(float Amount)
 	if (Amount <= 0.f || bIsDead)
 	{
 		return false;
-
 	}
 
-	if (Stamina < Amount)     
+	if (Stamina < Amount)
 	{
 		return false;
 	}

@@ -1,8 +1,8 @@
 #pragma once
 
-#include"CoreMinimal.h"
-#include"Components/ActorComponent.h"
-#include"CombatAttributeComponent.generated.h"
+#include "CoreMinimal.h"
+#include "Components/ActorComponent.h"
+#include "CombatAttributeComponent.generated.h"
 
 class AActor;
 
@@ -10,7 +10,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChanged, float, NewHealth,
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnStaminaChanged, float, NewStamina, float, MaxStamina);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeath,AActor*,Killer);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDeath, AActor*, Killer);
 
 UCLASS(ClassGroup = (Combat), meta = (BlueprintSpawnableComponent))
 class COMBATCORE_API UCombatAttributeComponent : public UActorComponent
@@ -20,10 +20,8 @@ class COMBATCORE_API UCombatAttributeComponent : public UActorComponent
 public:
 	UCombatAttributeComponent();
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Attributes", meta = (ClampMin ="1.0"))
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Attributes", meta = (ClampMin = "1.0"))
 	float MaxHealth = 100.f;
-
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|Attributes", meta = (ClampMin = "1.0"))
 	float MaxStamina = 100.f;
@@ -78,7 +76,4 @@ private:
 	float Stamina = 0.f;
 
 	bool bIsDead = false;
-
-	
-
 };
