@@ -3,7 +3,7 @@
 UE 5.8.3 C++ 近战战斗 Demo。核心逻辑全部由 C++ 实现（UI 蓝图只负责外观），
 目标是跑通一条完整的近战链路：输入 → 动画通知判定 → 扫掠命中 → 伤害结算 → 受击/死亡 → HUD。
 
-![CombatCore demo](Docs/media/day6_combat_demo.gif)
+![CombatCore demo](media/day6_combat_demo.gif)
 
 ## 功能
 
@@ -122,14 +122,12 @@ UnrealEditor-Cmd.exe "D:\Myproject\CombatCore\CombatCore.uproject" ^
   - 移动中攻击：不穿透，判定球跟随武器
 - HUD：血条红色、体力条绿色；实测宽度约屏幕的 35%（`RenderTransform.ScaleX=0.35`）；
   血量降到 0 时 Percent=0，无负数 / NaN
-- 演示：`Docs/media/day6_combat_demo.gif`（12 秒）
+- 演示：`media/day6_combat_demo.gif`（12 秒）
 
 已知限制：本项目是单机 Demo，不含联网、GAS、敌人 AI；第三方翻滚动画
 `A_RollUE5` 仅用于本地学习，公开分发前需替换。HUD 只有血条/体力条，
 WBP 中没有放置数值文本控件（`HealthText` / `StaminaText` 为可选的 BindWidget），
 因此无文字读数，数值以日志和条长变化为准。
-
-Day 7 收尾过程见 [`Docs/Day7_收尾与最终验收_手把手.md`](Docs/Day7_收尾与最终验收_手把手.md)。
 
 ## 第三方资产
 
